@@ -59,24 +59,24 @@
 	asyncTest( "selecting an item from a dialog sized custom select menu leaves no dialog hash key", function(){
 		var dialogHashKey = "ui-state=dialog";
 
-		$.testHelper.sequence([
+		$.testHelper.pageSequence([
 			function(){
 				$("#select-choice-many-container-hash-check a").trigger("click");
 			},
 
 			function(){
 				ok(location.hash.indexOf(dialogHashKey) > -1);
-				$(".ui-page-active li").trigger("click");
+				$(".ui-page-active li:first a").trigger("click");
 			},
 
 			function(){
 				ok(location.hash.indexOf(dialogHashKey) == -1);
 				start();
 			}
-		], 500);
+		]);
 	});
 
-	asyncTest( "dialog sized select menu opened many times remains a dialog", function(){
+ 	asyncTest( "dialog sized select menu opened many times remains a dialog", function(){
 		var dialogHashKey = "ui-state=dialog",
 
 				openDialogSequence = [
@@ -95,4 +95,32 @@
 		$.testHelper.sequence(sequence, 1000);
 	});
 
+	module("Non native menus", {
+		setup: function() {
+			$.mobile.selectmenu.prototype.options.nativeMenu = false;
+		},
+		teardown: function() {
+			$.mobile.selectmenu.prototype.options.nativeMenu = true;
+		}
+	});
+
+	asyncTest( "a large select option should not overflow", function(){
+		// https://github.com/jquery/jquery-mobile/issues/1338
+		var menu, select = $("#select-long-option-label");
+
+		$.testHelper.sequence([
+			function(){
+				// bring up the dialog
+				select.trigger("click");
+			},
+
+			function() {
+				menu = $(".ui-selectmenu-list");
+
+				equal(menu.width(), menu.find("li:nth-child(2) .ui-btn-text").width(), "ui-btn-text element should not overflow")
+				start();
+			}
+		], 500);
+
+	});
 })(jQuery);
